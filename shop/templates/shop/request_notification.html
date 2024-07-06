@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Request Notification{% endblock %}
+
+{% block content %}
+  <h1>Request Notification for {{ product.name }}</h1>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Request Notification</button>
+  </form>
+{% endblock %}

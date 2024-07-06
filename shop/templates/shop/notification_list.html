@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}requests{% endblock title %}
+
+{% block content %}
+  <h1>Tech shop notification</h1>
+  <ul>
+    {% for notification in notifications %}
+        <li>
+            <a href="{% url 'product_detail' notification.product.id %}">{{notification}}</a> 
+            {% if not notification.read %}
+                <a href="{% url 'mark_as_read' notification.id %}" class="btn btn-sm btn-primary">Mark as Read</a>
+            {% else %}
+                <span class="badge badge-secondary">Read</span>
+            {% endif %}
+        </li>
+    {% endfor %}
+  </ul>
+  {% block js_script %}
+  <script>
+    $(document).ready(function() {
+        function deleteReadNotifications() {
+            $.ajax({
+                url: '{% url "delete_read_notifications" %}',
+                method: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function(response) {
+                   
+                    if(response.success) {
+                        
+                        response.removed_ids.forEach(function(id) {
+                            $("#notification-" + id).remove(); 
+                        });
+                    } else {
+                        console.error("Failed to delete read notifications");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error occurred: " + status + ", " + error);
+                }
+            });
+        }
+
+        
+        deleteReadNotifications();
+
+        
+        setInterval(deleteReadNotifications, 600);
+    });
+</script>
+  {% endblock js_script %}
+  
+{% endblock %}

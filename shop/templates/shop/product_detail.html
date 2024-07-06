@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+  {% if messages %}
+  <ul class="messages">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" id="message">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% endfor %}
+  </ul>
+  {% endif %}
+
+
+<div class="container my-4">
+  <div class="row">
+    <div class="col-md-6">
+      <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded mb-4">
+    </div>
+    <div class="col-md-6">
+      <h1>{{ product.name }}</h1>
+      <p>{{ product.description }}</p>
+      <p class="h4">Price: ${{ product.price }}</p>
+      <p>Stock: {{ product.stock }}</p>
+      <p>rating: {{ average }}/5</p>
+
+      {% if product.stock > 0 %}
+        <form method="post" action="{% url 'add_to_cart' product.id %}" class="form-inline">
+          {% csrf_token %}
+          <div class="form-group mb-2">
+            <label for="quantity" class="sr-only">Quantity</label>
+            <input type="number" id="quantity" name="quantity" class="form-control mr-2" value="1" min="1" max="{{ product.stock }}">
+          </div>
+          <button type="submit" class="btn btn-success mb-2">Add to Cart</button>
+        </form>
+      {% else %}
+        <p class="text-danger">This product is currently out of stock.</p>
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'request_notification' product.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="product" value="{{ product.id }}">
+            <button type="submit" class="btn btn-primary">Request Notification</button>
+          </form>
+        {% else %}
+          <p><a href="{% url 'login' %}" class="btn btn-primary">Log in</a> to request a notification when this product is back in stock.</p>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+  <h2 class="my-4">Reviews</h2>
+  <div class="reviews">
+    {% if user.is_authenticated %}
+      {% for review in reviews %}
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ review.customer.email }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Rating: {{ review.rating }}/5</h6>
+            <p class="card-text">{{ review.comment }}</p>
+            <p class="card-text"><small class="text-muted">Posted on {{ review.created_at }}</small></p>
+          </div>
+        </div>
+      {% endfor %}
+      {% else %}
+        <p><a href="{% url 'login' %}" class="btn btn-primary">Log in</a> to read all the reviews.</p>
+      {% endif %}
+  </div>
+    {% if user.is_authenticated %}
+      {% if review_form%}
+        <h3 class="my-4">Add a Review</h3>
+        <form method="post" action="{% url 'product_detail' product.id %}">
+          {% csrf_token %}
+          {{ review_form.as_p }}
+          <button type="submit" class="btn btn-primary">Submit Review</button>
+        </form>      
+      {% else %}
+      <p>you must have purchased this item before placing a review</p>
+      {% endif %}
+    {% endif %}
+  
+  <h2 class="my-4">Related Products</h2>
+  <div class="row">
+    {% for related_product in related_products %}
+      <div class="col-md-3 mb-4">
+        <div class="card h-100">
+          <img src="{{ related_product.image.url }}" class="card-img-top" alt="{{ related_product.name }}">
+          <div class="card-body">
+            <h5 class="card-title">
+              <a href="{% url 'product_detail' related_product.id %}">{{ related_product.name }}</a>
+            </h5>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <a href="{% url 'product_list' %}" class="btn btn-secondary">Back to Product List</a>
+</div>
+{% endblock %}
+

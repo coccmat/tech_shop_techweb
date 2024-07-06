@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Sales Dashboard{% endblock %}
+
+{% block content %}
+  <h1>Sales Dashboard</h1>
+  <canvas id="salesChart" width="400" height="200"></canvas>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    var ctx = document.getElementById('salesChart').getContext('2d');
+    var salesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ labels|safe }},
+            datasets: [{
+                label: 'Sales Quantity',
+                data: {{ data|safe }},
+                backgroundColor: 'rgba(255, 62, 53, 0.92)',
+                borderColor: 'rgba(255, 62, 53, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'Re-stock Requests',
+                data: {{ request_data|safe }},
+                backgroundColor: 'rgba(26, 208, 26, 0.92)',
+                borderColor: 'rgba(26, 208, 26, 1)',
+                borderWidth: 1
+
+            }
+            
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+  </script>
+{% endblock %}

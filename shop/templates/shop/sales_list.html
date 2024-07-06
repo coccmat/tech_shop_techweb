@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Ordered Items{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1>Ordered Items</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in orders %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.get_status_display }}</td>
+                <td>
+                    {% if item.status != 'Confirmed' %}
+                    <form method="post" action="{% url 'confirm_order' item.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Confirm</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
